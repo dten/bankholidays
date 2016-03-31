@@ -1,4 +1,4 @@
-use chrono::{Datelike};
+use chrono::Datelike;
 
 pub fn is_bankholiday<T: Datelike>(_: &T) -> bool {
     unimplemented!();

@@ -12,18 +12,16 @@ pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
     match day {
         Weekday::Sat | Weekday::Sun => false,
         Weekday::Mon => {
-            if (m == 1 && d <= 3) || (m == 5 && (d <= 7 || 31 - 7 < d)) ||
-               (m == 8 && 31 - 7 < d) || (m == 12 && 25 <= d && d < 29) {
-                return true;
-            }
-            easter_ordinal(y) + 1 == date.ordinal()
+               (m == 1 && d <= 3)
+            || (m == 5 && (d <= 7 || 31 - 7 < d))
+            || (m == 8 && 31 - 7 < d)
+            || (m == 12 && 25 <= d && d < 29)
+            || easter_ordinal(y) + 1 == date.ordinal()
         }
         _ => {
-            if (m == 1 && d == 1) ||
-               (m == 12 && 25 <= d && (d < 27 || (day == Weekday::Tue && d < 29))) {
-                return true;
-            }
-            easter_ordinal(y) == date.ordinal() + 2
+               (m == 1 && d == 1)
+            || (m == 12 && 25 <= d && (d < 27 || (day == Weekday::Tue && d < 29)))
+            || easter_ordinal(y) == date.ordinal() + 2
         }
     }
 }
