@@ -24,6 +24,21 @@ pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
     let day = date.weekday();
     let (y, m, d) = (date.year(), date.month(), date.day());
 
+    // Special cases
+    match (y, m, d) {
+        (1995, 05, 01) => return false, // Moved for VE Day
+        (1995, 05, 08) => return true,
+        (1999, 12, 31) => return true,  // Extra for Millennium
+        (2002, 05, 27) => return false, // Moved for Jubilee
+        (2002, 06, 03) => return true,
+        (2002, 06, 04) => return true,  // Extra For Jubilee
+        (2011, 04, 29) => return true,  // Extra For Royal Wedding
+        (2012, 05, 28) => return false, // Moved for Jubilee
+        (2012, 06, 04) => return true,
+        (2012, 06, 05) => return true,  // Extra For Jubilee
+        _ => {},
+    }
+
     match day {
         Weekday::Sat | Weekday::Sun => false,
         Weekday::Mon => {
@@ -71,6 +86,16 @@ mod tests {
         }
     }
 
+    #[test]
+    fn test_2012() {
+        test_year(2012,
+                  &[(2, 1), (6, 4), (9, 4), (7, 5), (4, 6), (5, 6), (27, 8), (25, 12), (26, 12)]);
+    }
+    #[test]
+    fn test_2013() {
+        test_year(2013,
+                  &[(1, 1), (29, 3) ,(1, 4), (6, 5), (27, 5), (26, 8), (25, 12), (26, 12)]);
+    }
     #[test]
     fn test_2015() {
         test_year(2015,
