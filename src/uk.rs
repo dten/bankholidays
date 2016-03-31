@@ -28,11 +28,12 @@ pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
         Weekday::Sat | Weekday::Sun => false,
         Weekday::Mon => {
             new_years_sub(m, d) || early_may(m, d) || spring(m, d) || summer(m, d) ||
-            christmas_or_boxingday(day, m, d) || easter_ordinal(y) + 1 == date.ordinal()
+            christmas_or_boxingday(day, m, d) ||
+            ((m == 3 || m == 4) && easter_ordinal(y) + 1 == date.ordinal())
         }
         _ => {
             new_years_day(m, d) || christmas_or_boxingday(day, m, d) ||
-            easter_ordinal(y) == date.ordinal() + 2
+            (day == Weekday::Fri && (m == 3 || m == 4) && easter_ordinal(y) == date.ordinal() + 2)
         }
     }
 }
