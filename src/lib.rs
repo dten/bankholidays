@@ -31,7 +31,13 @@ pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
 }
 
 pub trait BankHoliday {
-    fn is_bankholiday(&self);
+    fn is_bankholiday(&self) -> bool;
+}
+
+impl<T: Datelike> BankHoliday for T {
+    fn is_bankholiday(&self) -> bool {
+        self::is_bankholiday(self)
+    }
 }
 
 #[cfg(test)]
@@ -49,10 +55,11 @@ mod tests {
         };
         for i in 0..days {
             let date = jan1 + Duration::days(i);
-            let holiday = is_bankholiday(&date);
+            let holiday = date.is_bankholiday();
             let expected = holidays.contains(&(date.day(), date.month()));
             assert!(expected == holiday,
                     format!("Expected {} for {} but got {}", expected, date, holiday));
+            assert_eq!(is_bankholiday(&date), holiday);
         }
     }
 
