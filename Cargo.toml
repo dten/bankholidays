@@ -1,12 +1,12 @@
 [package]
-name = "computus"
+name = "bankholidays"
 version = "0.0.1"
 authors = ["David Hewson <dev@daveid.co.uk>"]
 
 description = "Bank Holidays for England & Wales in Rust"
 homepage = "https://github.com/dten/bankholidays"
 repository = "https://github.com/dten/bankholidays"
-keywords = ["bankholidays", "uk", "england", "wales", "date", "calendar"]
+keywords = ["bankholiday", "england", "uk"]
 readme = "README.md"
 license = "MIT"
 
