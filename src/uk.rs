@@ -10,7 +10,7 @@ pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
 
     let new_years_day = |m, d| m == 1 && d == 1;
     let new_years_sub = |m, d| m == 1 && d <= 3;
-    let early_may = |m, d| m == 5 && d <= 3;
+    let early_may = |m, d| m == 5 && d <= 7;
     let spring = |m, d| m == 5 && 31 - 7 < d;
     let summer = |m, d| m == 8 && 31 - 7 < d;
     let christmas_or_boxingday = |day, m, d| {
@@ -70,6 +70,11 @@ mod tests {
         }
     }
 
+    #[test]
+    fn test_2015() {
+        test_year(2015,
+                  &[(1, 1), (3, 4), (6, 4), (4, 5), (25, 5), (31, 8), (25, 12), (28, 12)]);
+    }
     #[test]
     fn test_2016() {
         test_year(2016,
