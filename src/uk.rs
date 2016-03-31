@@ -8,19 +8,6 @@ fn easter_ordinal(y: i32) -> u32 {
 
 pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
 
-    let new_years_day = |m, d| m == 1 && d == 1;
-    let new_years_sub = |m, d| m == 1 && d <= 3;
-    let early_may = |m, d| m == 5 && d <= 7;
-    let spring = |m, d| m == 5 && 31 - 7 < d;
-    let summer = |m, d| m == 8 && 31 - 7 < d;
-    let christmas_or_boxingday = |day, m, d| {
-        m == 12 &&
-        match day {
-            Weekday::Mon | Weekday::Tue => d >= 25 && d < 29,
-            _ => d >= 25 && d < 27,
-        }
-    };
-
     let day = date.weekday();
     let (y, m, d) = (date.year(), date.month(), date.day());
 
@@ -38,6 +25,19 @@ pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
         (2012, 06, 05) => return true,  // Extra For Jubilee
         _ => {}
     }
+    
+    let new_years_day = |m, d| m == 1 && d == 1;
+    let new_years_sub = |m, d| m == 1 && d <= 3;
+    let early_may = |m, d| m == 5 && d <= 7;
+    let spring = |m, d| m == 5 && 31 - 7 < d;
+    let summer = |m, d| m == 8 && 31 - 7 < d;
+    let christmas_or_boxingday = |day, m, d| {
+        m == 12 &&
+        match day {
+            Weekday::Mon | Weekday::Tue => d >= 25 && d < 29,
+            _ => d >= 25 && d < 27,
+        }
+    };
 
     match day {
         Weekday::Sat | Weekday::Sun => false,
