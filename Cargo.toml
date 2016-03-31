@@ -12,4 +12,4 @@ license = "MIT"
 
 [dependencies]
 chrono = "^0.2.0"
-computus = "^0.1"
+computus = "^0.1.1"
