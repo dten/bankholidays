@@ -2,8 +2,8 @@ use chrono::{NaiveDate, Datelike, Weekday};
 use computus;
 
 fn easter_ordinal(y: i32) -> u32 {
-    let easter = computus::gregorian::month_day(y);
-    NaiveDate::from_ymd(y, easter.0, easter.1).ordinal()
+    let easter = computus::gregorian(y).expect("computus error");
+    NaiveDate::from_ymd(y, easter.month, easter.day).ordinal()
 }
 
 pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
