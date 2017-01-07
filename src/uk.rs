@@ -25,7 +25,7 @@ pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
         (2012, 06, 05) => return true,  // Extra For Jubilee
         _ => {}
     }
-    
+
     let new_years_day = |m, d| m == 1 && d == 1;
     let new_years_sub = |m, d| m == 1 && d <= 3;
     let early_may = |m, d| m == 5 && d <= 7;
@@ -68,62 +68,51 @@ mod tests {
     use super::*;
     use chrono::{NaiveDate, Datelike, Duration};
 
-    fn test_year(year: i32, holidays: &[(u32, u32)]) {
-        let ymd = |y, m, d| NaiveDate::from_ymd(y, m, d);
-        let jan1 = ymd(year, 1, 1);
-        let days = if NaiveDate::from_ymd_opt(year, 2, 29).is_some() {
-            366
-        } else {
-            365
-        };
-        for i in 0..days {
-            let date = jan1 + Duration::days(i);
-            let holiday = date.is_bankholiday();
-            let expected = holidays.contains(&(date.day(), date.month()));
-            assert!(expected == holiday,
-                    format!("Expected {} for {} but got {}", expected, date, holiday));
-            assert_eq!(is_bankholiday(&date), holiday);
+    macro_rules! test {
+        ($name:ident, $year:expr, $dates:expr) => {
+            #[test]
+            fn $name() {
+                let ymd = |y, m, d| NaiveDate::from_ymd(y, m, d);
+                let jan1 = ymd($year, 1, 1);
+                let days = if NaiveDate::from_ymd_opt($year, 2, 29).is_some() {
+                    366
+                } else {
+                    365
+                };
+                for i in 0..days {
+                    let date = jan1 + Duration::days(i);
+                    let holiday = date.is_bankholiday();
+                    let expected = $dates.contains(&(date.day(), date.month()));
+                    assert!(expected == holiday,
+                            format!("Expected {} for {} but got {}", expected, date, holiday));
+                    assert_eq!(is_bankholiday(&date), holiday);
+                }
+            }
         }
     }
 
-    #[test]
-    fn test_1999() {
-        test_year(1999,
-                  &[(1, 1), (2, 4), (5, 4), (3, 5), (31, 5), (30, 8), (27, 12), (28, 12), (31, 12)]);
-    }
-    #[test]
-    fn test_2002() {
-        test_year(2002,
-                  &[(1, 1), (29, 3), (1, 4), (6, 5), (3, 6), (4, 6), (26, 8), (25, 12), (26, 12)]);
-    }
-    #[test]
-    fn test_2012() {
-        test_year(2012,
-                  &[(2, 1), (6, 4), (9, 4), (7, 5), (4, 6), (5, 6), (27, 8), (25, 12), (26, 12)]);
-    }
-    #[test]
-    fn test_2013() {
-        test_year(2013,
-                  &[(1, 1), (29, 3), (1, 4), (6, 5), (27, 5), (26, 8), (25, 12), (26, 12)]);
-    }
-    #[test]
-    fn test_2014() {
-        test_year(2014,
-                  &[(1, 1), (18, 4), (21, 4), (5, 5), (26, 5), (25, 8), (25, 12), (26, 12)]);
-    }
-    #[test]
-    fn test_2015() {
-        test_year(2015,
-                  &[(1, 1), (3, 4), (6, 4), (4, 5), (25, 5), (31, 8), (25, 12), (28, 12)]);
-    }
-    #[test]
-    fn test_2016() {
-        test_year(2016,
-                  &[(1, 1), (25, 3), (28, 3), (2, 5), (30, 5), (29, 8), (26, 12), (27, 12)]);
-    }
-    #[test]
-    fn test_2017() {
-        test_year(2017,
-                  &[(2, 1), (14, 4), (17, 4), (1, 5), (29, 5), (28, 8), (25, 12), (26, 12)]);
-    }
+    test!(year_1999, 1999,
+          [(1, 1), (2, 4), (5, 4), (3, 5), (31, 5), (30, 8), (27, 12), (28, 12), (31, 12)]);
+
+    test!(year_2002, 2002,
+          [(1, 1), (29, 3), (1, 4), (6, 5), (3, 6), (4, 6), (26, 8), (25, 12), (26, 12)]);
+
+    test!(year_2012, 2012,
+          [(2, 1), (6, 4), (9, 4), (7, 5), (4, 6), (5, 6), (27, 8), (25, 12), (26, 12)]);
+
+    test!(year_2013, 2013,
+          [(1, 1), (29, 3), (1, 4), (6, 5), (27, 5), (26, 8), (25, 12), (26, 12)]);
+
+    test!(year_2014, 2014,
+          [(1, 1), (18, 4), (21, 4), (5, 5), (26, 5), (25, 8), (25, 12), (26, 12)]);
+
+    test!(year_2015, 2015,
+          [(1, 1), (3, 4), (6, 4), (4, 5), (25, 5), (31, 8), (25, 12), (28, 12)]);
+
+    test!(year_2016, 2016,
+          [(1, 1), (25, 3), (28, 3), (2, 5), (30, 5), (29, 8), (26, 12), (27, 12)]);
+
+    test!(year_2017, 2017,
+          [(2, 1), (14, 4), (17, 4), (1, 5), (29, 5), (28, 8), (25, 12), (26, 12)]);
+
 }
