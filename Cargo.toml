@@ -11,5 +11,5 @@ readme = "README.md"
 license = "MIT"
 
 [dependencies]
-chrono = "^0.2.0"
+chrono = ">=0.2.0"
 computus = "1.0.0"
