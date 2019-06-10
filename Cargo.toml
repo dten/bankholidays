@@ -1,6 +1,6 @@
 [package]
 name = "bankholidays"
-version = "1.1.0"
+version = "1.1.1"
 authors = ["David Hewson <dev@daveid.co.uk>"]
 
 description = "Bank Holidays for England & Wales in Rust"
