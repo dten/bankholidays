@@ -25,6 +25,9 @@ pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
         (2012, 06, 05) => return true,  // Extra For Jubilee
         (2020, 05, 04) => return false, // Move for VE Day
         (2020, 05, 08) => return true,
+        (2022, 05, 30) => return false, // Move for Jubilee
+        (2022, 06, 02) => return true,
+        (2022, 06, 03) => return true,  // Extra for Jubilee
         _ => {}
     }
 
@@ -122,5 +125,8 @@ mod tests {
 
     test!(year_2020, 2020,
           [(1, 1), (10, 4), (13, 4), (8, 5), (25, 5), (31, 8), (25, 12), (28, 12)]);
+
+    test!(year_2022, 2022,
+          [(3, 1), (15, 4), (18, 4), (2, 5), (2, 6), (3, 6), (29, 8), (26, 12), (27, 12)]);
 
 }
