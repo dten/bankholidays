@@ -29,6 +29,7 @@ pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
         (2022, 06, 02) => return true,
         (2022, 06, 03) => return true,  // Extra for Jubilee
         (2022, 09, 19) => return true,  // Extra for QE2 funeral
+        (2023, 05, 08) => return true,  // Extra for C3 coronation
         _ => {}
     }
 
@@ -132,5 +133,11 @@ mod tests {
 
     test!(year_2022, 2022,
           [(3, 1), (15, 4), (18, 4), (2, 5), (2, 6), (3, 6), (29, 8), (19, 9), (26, 12), (27, 12)]);
+
+    test!(year_2023, 2023,
+          [(2, 1), (7, 4), (10, 4), (1, 5), (8, 5), (29, 5), (28, 8), (25, 12), (26, 12)]);
+
+    test!(year_2024, 2024,
+          [(1, 1), (29, 3), (1, 4), (6, 5), (27, 5), (26, 8), (25, 12), (26, 12)]);
 
 }
