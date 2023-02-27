@@ -85,16 +85,19 @@ mod tests {
                 } else {
                     365
                 };
-                for i in 0..days {
-                    let date = jan1 + Duration::days(i);
-                    let holiday = date.is_bankholiday();
-                    let expected = $dates.contains(&(date.day(), date.month()));
-                    assert!(expected == holiday,
-                            format!("Expected {} for {} but got {}", expected, date, holiday));
-                    assert_eq!(is_bankholiday(&date), holiday);
-                }
+                let bhs: Vec<_> = (0..days)
+                    .map(|i| jan1 + Duration::days(i))
+                    .filter_map(|date| {
+                        if date.is_bankholiday() {
+                            Some((date.day(), date.month()))
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+                assert_eq!($dates, bhs.as_slice());
             }
-        }
+        };
     }
 
     test!(year_1999, 1999,
