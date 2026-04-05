@@ -1,9 +1,10 @@
 use chrono::{Datelike, NaiveDate, Weekday};
-use computus;
 
-fn easter_ordinal(y: i32) -> u32 {
-    let easter = computus::gregorian(y).expect("computus error");
-    NaiveDate::from_ymd(y, easter.month, easter.day).ordinal()
+fn easter_ordinal(y: i32) -> Option<u32> {
+    let easter = computus::gregorian(y).ok()?;
+    NaiveDate::from_ymd_opt(y, easter.month, easter.day)?
+        .ordinal()
+        .into()
 }
 
 pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
@@ -53,14 +54,14 @@ pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
                 || spring(m, d)
                 || summer(m, d)
                 || christmas_or_boxingday(day, m, d)
-                || ((m == 3 || m == 4) && easter_ordinal(y) + 1 == date.ordinal())
+                || ((m == 3 || m == 4) && easter_ordinal(y).map(|o| o + 1) == Some(date.ordinal()))
         }
         _ => {
             new_years_day(m, d)
                 || christmas_or_boxingday(day, m, d)
                 || (day == Weekday::Fri
                     && (m == 3 || m == 4)
-                    && easter_ordinal(y) == date.ordinal() + 2)
+                    && easter_ordinal(y) == Some(date.ordinal() + 2))
         }
     }
 }
@@ -84,7 +85,7 @@ mod tests {
         ($name:ident, $year:expr, $dates:expr) => {
             #[test]
             fn $name() {
-                let ymd = |y, m, d| NaiveDate::from_ymd(y, m, d);
+                let ymd = |y, m, d| NaiveDate::from_ymd_opt(y, m, d).unwrap();
                 let jan1 = ymd($year, 1, 1);
                 let days = if NaiveDate::from_ymd_opt($year, 2, 29).is_some() {
                     366
