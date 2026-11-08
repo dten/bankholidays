@@ -1,10 +1,28 @@
-use chrono::{Datelike, NaiveDate, Weekday};
+use chrono::{Datelike, Weekday};
 
-fn easter_ordinal(y: i32) -> Option<u32> {
-    let easter = computus::gregorian(y).ok()?;
-    NaiveDate::from_ymd_opt(y, easter.month, easter.day)?
-        .ordinal()
-        .into()
+// Day number counting from March 1 (March has 31 days, so April 1 is 32)
+const fn march_day(m: u32, d: u32) -> u32 {
+    if m == 4 {
+        31 + d
+    } else {
+        d
+    }
+}
+
+const fn is_easter_monday(y: i32, m: u32, d: u32) -> bool {
+    (m == 3 || m == 4)
+        && match computus::gregorian(y) {
+            Ok(easter) => march_day(m, d) == march_day(easter.month, easter.day) + 1,
+            Err(_) => false,
+        }
+}
+
+const fn is_good_friday(y: i32, m: u32, d: u32) -> bool {
+    (m == 3 || m == 4)
+        && match computus::gregorian(y) {
+            Ok(easter) => march_day(m, d) + 2 == march_day(easter.month, easter.day),
+            Err(_) => false,
+        }
 }
 
 pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
@@ -54,14 +72,12 @@ pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
                 || spring(m, d)
                 || summer(m, d)
                 || christmas_or_boxingday(day, m, d)
-                || ((m == 3 || m == 4) && easter_ordinal(y).map(|o| o + 1) == Some(date.ordinal()))
+                || is_easter_monday(y, m, d)
         }
         _ => {
             new_years_day(m, d)
                 || christmas_or_boxingday(day, m, d)
-                || (day == Weekday::Fri
-                    && (m == 3 || m == 4)
-                    && easter_ordinal(y) == Some(date.ordinal() + 2))
+                || (day == Weekday::Fri && is_good_friday(y, m, d))
         }
     }
 }
