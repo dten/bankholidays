@@ -11,7 +11,7 @@ Add this to your Cargo.toml:
 
 ```toml
 [dependencies]
-bankholidays = "1.2.2"
+bankholidays = "1.3.1"
 ```
 
 ```rust
