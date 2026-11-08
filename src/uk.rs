@@ -1,4 +1,43 @@
-use chrono::{Datelike, Weekday};
+use chrono::Datelike;
+
+#[derive(Copy, Clone, Eq, PartialEq)]
+enum Weekday {
+    Sun,
+    Mon,
+    Tue,
+    Wed,
+    Thu,
+    Fri,
+    Sat,
+}
+
+const fn is_leap_year(y: i32) -> bool {
+    (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0)
+}
+
+const fn days_in_month(y: i32, m: u32) -> u32 {
+    match m {
+        1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+        4 | 6 | 9 | 11 => 30,
+        2 if is_leap_year(y) => 29,
+        2 => 28,
+        _ => 0,
+    }
+}
+
+const fn weekday_from_ymd(y: i32, m: u32, d: u32) -> Weekday {
+    const T: [i32; 12] = [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
+    let y = if m < 3 { y - 1 } else { y };
+    match (y + y / 4 - y / 100 + y / 400 + T[(m - 1) as usize] + d as i32).rem_euclid(7) {
+        0 => Weekday::Sun,
+        1 => Weekday::Mon,
+        2 => Weekday::Tue,
+        3 => Weekday::Wed,
+        4 => Weekday::Thu,
+        5 => Weekday::Fri,
+        _ => Weekday::Sat,
+    }
+}
 
 // Day number counting from March 1 (March has 31 days, so April 1 is 32)
 const fn march_day(m: u32, d: u32) -> u32 {
@@ -25,9 +64,10 @@ const fn is_good_friday(y: i32, m: u32, d: u32) -> bool {
         }
 }
 
-pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
-    let day = date.weekday();
-    let (y, m, d) = (date.year(), date.month(), date.day());
+pub const fn is_bankholiday_ymd(y: i32, m: u32, d: u32) -> bool {
+    if y < 1583 || y > 9999 || d < 1 || d > days_in_month(y, m) {
+        return false;
+    }
 
     // Special cases
     match (y, m, d) {
@@ -51,18 +91,30 @@ pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
         _ => {}
     }
 
-    let new_years_day = |m, d| m == 1 && d == 1;
-    let new_years_sub = |m, d| m == 1 && d <= 3;
-    let early_may = |m, d| m == 5 && d <= 7;
-    let spring = |m, d| m == 5 && 31 - 7 < d;
-    let summer = |m, d| m == 8 && 31 - 7 < d;
-    let christmas_or_boxingday = |day, m, d| {
+    const fn new_years_day(m: u32, d: u32) -> bool {
+        m == 1 && d == 1
+    }
+    const fn new_years_sub(m: u32, d: u32) -> bool {
+        m == 1 && d <= 3
+    }
+    const fn early_may(m: u32, d: u32) -> bool {
+        m == 5 && d <= 7
+    }
+    const fn spring(m: u32, d: u32) -> bool {
+        m == 5 && 31 - 7 < d
+    }
+    const fn summer(m: u32, d: u32) -> bool {
+        m == 8 && 31 - 7 < d
+    }
+    const fn christmas_or_boxingday(day: Weekday, m: u32, d: u32) -> bool {
         m == 12
             && match day {
                 Weekday::Mon | Weekday::Tue => d >= 25 && d < 29,
                 _ => d >= 25 && d < 27,
             }
-    };
+    }
+
+    let day = weekday_from_ymd(y, m, d);
 
     match day {
         Weekday::Sat | Weekday::Sun => false,
@@ -77,9 +129,13 @@ pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
         _ => {
             new_years_day(m, d)
                 || christmas_or_boxingday(day, m, d)
-                || (day == Weekday::Fri && is_good_friday(y, m, d))
+                || (matches!(day, Weekday::Fri) && is_good_friday(y, m, d))
         }
     }
+}
+
+pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
+    is_bankholiday_ymd(date.year(), date.month(), date.day())
 }
 
 pub trait BankHoliday {
