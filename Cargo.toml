@@ -9,6 +9,8 @@ repository = "https://github.com/dten/bankholidays"
 keywords = ["bankholiday", "england", "uk"]
 readme = "README.md"
 license = "MIT"
+edition = "2021"
+rust-version = "1.81"
 
 [dependencies]
 chrono = ">=0.2.0"
