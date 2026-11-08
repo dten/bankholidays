@@ -108,17 +108,15 @@ mod tests {
                 } else {
                     365
                 };
-                let bhs: Vec<_> = (0..days)
-                    .map(|i| jan1 + Duration::days(i))
-                    .filter_map(|date| {
-                        if date.is_bankholiday() {
-                            Some((date.day(), date.month()))
-                        } else {
-                            None
-                        }
-                    })
-                    .collect();
-                assert_eq!($dates, bhs.as_slice());
+                let mut bhs = [(0, 0); 16];
+                let mut len = 0;
+                for date in (0..days).map(|i| jan1 + Duration::days(i)) {
+                    if date.is_bankholiday() {
+                        bhs[len] = (date.day(), date.month());
+                        len += 1;
+                    }
+                }
+                assert_eq!($dates, bhs[..len]);
             }
         };
     }
