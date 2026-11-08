@@ -1,5 +1,3 @@
-use chrono::Datelike;
-
 #[derive(Copy, Clone, Eq, PartialEq)]
 enum Weekday {
     Sun,
@@ -134,17 +132,77 @@ pub const fn is_bankholiday_ymd(y: i32, m: u32, d: u32) -> bool {
     }
 }
 
-pub fn is_bankholiday<T: Datelike>(date: &T) -> bool {
-    is_bankholiday_ymd(date.year(), date.month(), date.day())
+pub fn is_bankholiday<T: BankHoliday>(date: &T) -> bool {
+    date.is_bankholiday()
 }
 
 pub trait BankHoliday {
     fn is_bankholiday(&self) -> bool;
 }
 
-impl<T: Datelike> BankHoliday for T {
+impl BankHoliday for (i32, u32, u32) {
     fn is_bankholiday(&self) -> bool {
-        self::is_bankholiday(self)
+        is_bankholiday_ymd(self.0, self.1, self.2)
+    }
+}
+
+impl BankHoliday for computus::Date {
+    fn is_bankholiday(&self) -> bool {
+        is_bankholiday_ymd(self.year, self.month, self.day)
+    }
+}
+
+#[cfg(feature = "chrono")]
+impl BankHoliday for chrono::NaiveDate {
+    fn is_bankholiday(&self) -> bool {
+        use chrono::Datelike;
+        is_bankholiday_ymd(self.year(), self.month(), self.day())
+    }
+}
+
+#[cfg(feature = "chrono")]
+impl BankHoliday for chrono::NaiveDateTime {
+    fn is_bankholiday(&self) -> bool {
+        use chrono::Datelike;
+        is_bankholiday_ymd(self.year(), self.month(), self.day())
+    }
+}
+
+#[cfg(feature = "chrono")]
+impl<Tz: chrono::TimeZone> BankHoliday for chrono::DateTime<Tz> {
+    fn is_bankholiday(&self) -> bool {
+        use chrono::Datelike;
+        is_bankholiday_ymd(self.year(), self.month(), self.day())
+    }
+}
+
+#[cfg(feature = "chrono")]
+#[allow(deprecated)]
+impl<Tz: chrono::TimeZone> BankHoliday for chrono::Date<Tz> {
+    fn is_bankholiday(&self) -> bool {
+        use chrono::Datelike;
+        is_bankholiday_ymd(self.year(), self.month(), self.day())
+    }
+}
+
+#[cfg(feature = "jiff")]
+impl BankHoliday for jiff::civil::Date {
+    fn is_bankholiday(&self) -> bool {
+        is_bankholiday_ymd(self.year() as i32, self.month() as u32, self.day() as u32)
+    }
+}
+
+#[cfg(feature = "jiff")]
+impl BankHoliday for jiff::civil::DateTime {
+    fn is_bankholiday(&self) -> bool {
+        is_bankholiday_ymd(self.year() as i32, self.month() as u32, self.day() as u32)
+    }
+}
+
+#[cfg(feature = "jiff")]
+impl BankHoliday for jiff::Zoned {
+    fn is_bankholiday(&self) -> bool {
+        is_bankholiday_ymd(self.year() as i32, self.month() as u32, self.day() as u32)
     }
 }
 

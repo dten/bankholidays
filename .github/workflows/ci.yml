@@ -9,6 +9,15 @@ on:
 
 jobs:
   test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test
+      - run: cargo test --all-features
+
+  chrono:
     name: Test (chrono ${{ matrix.chrono }})
     runs-on: ubuntu-latest
     strategy:
@@ -22,7 +31,23 @@ jobs:
       - name: Pin chrono version
         if: matrix.chrono != 'latest'
         run: cargo update -p chrono --precise ${{ matrix.chrono }}
-      - run: cargo test
+      - run: cargo test --features chrono
+
+  jiff:
+    name: Test (jiff ${{ matrix.jiff }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        jiff: ["0.1.29", "latest"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Pin jiff version
+        if: matrix.jiff != 'latest'
+        run: cargo update -p jiff --precise ${{ matrix.jiff }}
+      - run: cargo test --features jiff
 
   lint:
     name: Fmt & Clippy
@@ -33,4 +58,4 @@ jobs:
         with:
           components: rustfmt, clippy
       - run: cargo fmt --check
-      - run: cargo clippy
+      - run: cargo clippy --all-features -- -D warnings
