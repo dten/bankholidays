@@ -151,25 +151,30 @@ impl<T: Datelike> BankHoliday for T {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::{Datelike, Duration, NaiveDate};
 
     macro_rules! test {
         ($name:ident, $year:expr, $dates:expr) => {
             #[test]
             fn $name() {
-                let ymd = |y, m, d| NaiveDate::from_ymd_opt(y, m, d).unwrap();
-                let jan1 = ymd($year, 1, 1);
-                let days = if NaiveDate::from_ymd_opt($year, 2, 29).is_some() {
-                    366
-                } else {
-                    365
-                };
                 let mut bhs = [(0, 0); 16];
                 let mut len = 0;
-                for date in (0..days).map(|i| jan1 + Duration::days(i)) {
-                    if date.is_bankholiday() {
-                        bhs[len] = (date.day(), date.month());
-                        len += 1;
+                for m in 1..=12 {
+                    for d in 1..=days_in_month($year, m) {
+                        let is_bh = is_bankholiday_ymd($year, m, d);
+                        #[cfg(feature = "chrono")]
+                        {
+                            let date = chrono::NaiveDate::from_ymd_opt($year, m, d).unwrap();
+                            assert_eq!(is_bh, date.is_bankholiday());
+                        }
+                        #[cfg(feature = "jiff")]
+                        {
+                            let date = jiff::civil::Date::new($year, m as i8, d as i8).unwrap();
+                            assert_eq!(is_bh, date.is_bankholiday());
+                        }
+                        if is_bh {
+                            bhs[len] = (d, m);
+                            len += 1;
+                        }
                     }
                 }
                 assert_eq!($dates, bhs[..len]);
